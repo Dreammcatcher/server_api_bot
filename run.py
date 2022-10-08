@@ -35,6 +35,9 @@ def check(value):
     keys_from_server = session.query(LicenseCodes.codes).all()
     for i in keys_from_server:
         if code_from_client in i:
-            return {'check': 'it is password'}
+            encrypted_key = fer_key.encrypt(bytes(code_from_client, encoding='utf-8'))
+            resp = encrypted_key.decode('utf-8')
+
+            return {'check': resp}
     return {'check': 'wrong'}
 
