@@ -1,4 +1,4 @@
-
+from db import *
 import fastapi
 
 
@@ -12,8 +12,9 @@ def check():
 
 @api.get('/check/{value}')
 def check(value):
-    if value == 'password':
-        return {'check': 'it is password'}
-    else:
-        return {'check': 'WARNING'}
+    keys_from_server = session.query(LicenseCodes.codes).all()
+    for i in keys_from_server:
+        if value in i:
+            return {'check': 'it is password'}
+    return {'check': 'WARNING'}
 
