@@ -23,7 +23,8 @@ def check_connect(url, b):
 
 
 def constant_check():
-    a = send_string()
+    date = datetime.datetime.now().strftime('%d/%m/%Y %H:%M')
+    a = send_string(date)
     while True:
         check_connect(api_url, a)
 
@@ -48,15 +49,17 @@ date = datetime.datetime.now().strftime('%d/%m/%Y %H:%M')
 e = send_string(date)
 req = requests.get(f'{api_url}/id_machine/{e}')
 #req = requests.get(f'{api_url}/che')
-
-otvet_client = req.json()['check']
-decrypted_key = respons.decrypt(otvet_client)
-code_from_server = decrypted_key.decode('utf-8')
-datetime_today = datetime.datetime.now().strftime('%d/%m/%Y %H:%M')
-print(code_from_server[:14])
-if code_from_server[14:] == license_key:
-    if code_from_server[:14] == datetime_today:
-        print(True)
-else:
-    print('f')
 print(req.json())
+otvet_client = req.json()['id_machine']
+if otvet_client == 'wrong':
+    print('fail')
+else:
+    decrypted_key = respons.decrypt(otvet_client)
+    code_from_server = decrypted_key.decode('utf-8')
+    datetime_today = datetime.datetime.now().strftime('%d/%m/%Y %H')
+    if code_from_server[16:] == license_key:
+        if code_from_server[:13] == datetime_today:
+            print('код совпадает')
+    else:
+        print('ошибка, вы нарушили')
+    print(req.json())

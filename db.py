@@ -35,17 +35,17 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
-# def create_codes(quantity_codes: int):
-#     """
-#     заполняет БД кодами
-#     :param quantity_codes: количество создаваемых кодов
-#     """
-#     letters = string.ascii_uppercase + string.digits
-#     for i in range(1, quantity_codes):
-#         code = ''.join(random.choice(letters) for j in range(16))
-#         one = LicenseCodes(codes=code)
-#         session.add(one)
-#     session.commit()
-#
-#
-# create_codes(101)
+def create_codes(quantity_codes: int):
+    """
+    заполняет БД кодами
+    :param quantity_codes: количество создаваемых кодов
+    """
+    letters = string.ascii_uppercase + string.digits
+    for i in range(1, quantity_codes):
+        code = ''.join(random.choice(letters) for j in range(16))
+        one = LicenseCodes(codes=code)
+        session.add(one)
+    session.commit()
+
+
+create_codes(101)

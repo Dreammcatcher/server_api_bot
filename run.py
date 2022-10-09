@@ -54,7 +54,7 @@ def check_connect(value):
             pass
 
 
-@api.get('/check/{value}')
+@api.get('/id_machine/{value}')
 def check(value):
     decrypted_key = fer_key.decrypt(value)
     code_from_client = decrypted_key.decode('utf-8')
@@ -62,10 +62,10 @@ def check(value):
     keys_from_server = session.query(LicenseCodes.codes).all()
     for i in keys_from_server:
         if code_from_client in i:
-            date_today = datetime.date.today().strftime('%d/%m/%Y %H:%M')
+            date_today = datetime.datetime.today().strftime('%d/%m/%Y %H:%M')
             encrypted_key = response.encrypt(bytes(date_today+code_from_client, encoding='utf-8'))
             resp = encrypted_key.decode('utf-8')
 
             return {'id_machine': resp}
-    return {'check': 'wrong'}
+    return {'id_machine': 'wrong'}
 
