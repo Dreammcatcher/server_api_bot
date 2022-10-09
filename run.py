@@ -1,6 +1,6 @@
 from db import *
 import fastapi
-
+import datetime
 
 api = fastapi.FastAPI()
 kdf = PBKDF2HMAC(
@@ -18,7 +18,7 @@ kdf2 = PBKDF2HMAC(
     salt=b'string',
     iterations=390000,)
 
-key_encode = base64.urlsafe_b64encode(kdf.derive(b'string'))
+key_encode = base64.urlsafe_b64encode(kdf2.derive(b'string'))
 response = Fernet(key_encode)
 
 
@@ -35,7 +35,8 @@ def check(value):
     keys_from_server = session.query(LicenseCodes.codes).all()
     for i in keys_from_server:
         if code_from_client in i:
-            encrypted_key = fer_key.encrypt(bytes(code_from_client, encoding='utf-8'))
+            date_today = datetime.date.today().strftime('%d/%m/%Y')
+            encrypted_key = response.encrypt(bytes(date_today+code_from_client, encoding='utf-8'))
             resp = encrypted_key.decode('utf-8')
 
             return {'check': resp}

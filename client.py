@@ -18,8 +18,8 @@ kdf2 = PBKDF2HMAC(
     salt=b'string',
     iterations=390000,)
 
-key_encode = base64.urlsafe_b64encode(kdf.derive(b'string'))
-response = Fernet(key_encode)
+key_encode = base64.urlsafe_b64encode(kdf2.derive(b'string'))
+respons = Fernet(key_encode)
 
 
 date = datetime.datetime.now().strftime('%d/%m/%Y %H:%M')
@@ -29,8 +29,14 @@ encrypted_key = fer_key.encrypt(bytes(license_key+date, encoding='utf-8'))
 e = encrypted_key.decode('utf-8')
 req = requests.get(f'{api_url}/check/{e}')
 #req = requests.get(f'{api_url}/che')
-decrypted_key = response.decrypt(req.json()['check'])
+
+otvet_client = req.json()['check']
+decrypted_key = respons.decrypt(otvet_client)
 code_from_server = decrypted_key.decode('utf-8')
-if code_from_server == license_key:
-    print(True)
+date_today = datetime.date.today().strftime('%d/%m/%Y')
+if code_from_server[10:] == license_key:
+    if date_today == code_from_server[:10]:
+        print(True)
+else:
+    print('f')
 print(req.json())
