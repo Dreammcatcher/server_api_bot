@@ -27,7 +27,7 @@ key_after_encode = base64.urlsafe_b64encode(kdf.derive(b'bytes'))
 fer_key = Fernet(key_after_encode)
 encrypted_key = fer_key.encrypt(bytes(license_key+date, encoding='utf-8'))
 e = encrypted_key.decode('utf-8')
-req = requests.get(f'{api_url}/check/{e}')
+req = requests.get(f'{api_url}/id_machine/{e}')
 #req = requests.get(f'{api_url}/che')
 
 otvet_client = req.json()['check']

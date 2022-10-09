@@ -39,6 +39,6 @@ def check(value):
             encrypted_key = response.encrypt(bytes(date_today+code_from_client, encoding='utf-8'))
             resp = encrypted_key.decode('utf-8')
 
-            return {'check': resp}
+            return {'id_machine': resp}
     return {'check': 'wrong'}
 
