@@ -31,9 +31,12 @@ def send_id_machine(dates):
 
 async def check_connect(url, b):
     times = datetime.datetime.now().strftime('%H:%M')
-    if times[3:] == '00':
+    if times[3:] == '23':
         resp = requests.get(f'{url}/check_connect/{b}')
-        print(f'проверка лицензии каждый час {resp}')
+        print(f'проверка лицензии каждый час {resp.text}')
+        await asyncio.sleep(5)
+        requests.get(f'{url}/check_connect/{b}')
+        print('2')
     else:
         print('toko proveril')
     await asyncio.sleep(55)

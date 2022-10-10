@@ -17,12 +17,12 @@ Base = declarative_base()
 
 
 class LicenseCodes(Base):
-    __tablename__ = 'db_liscense_codes_v1.1'
+    __tablename__ = 'db_liscense_codes_v1.2'
     id = Column(Integer, primary_key=True)
     codes = Column('codes', String, default=None)
     date_sell = Column('date_sell', Date, default=None, onupdate=datetime.date.today())
     status = Column('status', String, default=None)
-    last_time_check = Column('last_time_check', Time, default=None)
+    last_time_check = Column('last_time_check', String, default=None)
 
     def __str__(self):
         pass
