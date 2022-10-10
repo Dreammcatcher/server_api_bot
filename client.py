@@ -1,5 +1,4 @@
 import asyncio
-
 from config import api_url, license_key
 import requests
 from cryptography.fernet import Fernet
@@ -24,7 +23,7 @@ key_after_encode = base64.urlsafe_b64encode(kdf.derive(b'bytes'))
 fer_key = Fernet(key_after_encode)
 
 
-def send_string(dates):
+def send_id_machine(dates):
     encrypted_key = fer_key.encrypt(bytes(license_key + dates, encoding='utf-8'))
     t = encrypted_key.decode('utf-8')
     return t
@@ -43,14 +42,14 @@ async def check_connect(url, b):
 async def constant_check():
     while True:
         dates = datetime.datetime.now().strftime('%d/%m/%Y %H:%M')
-        a = send_string(dates)
+        a = send_id_machine(dates)
         await check_connect(api_url, a)
 
 
 key_encode = base64.urlsafe_b64encode(kdf2.derive(b'string'))
 respons = Fernet(key_encode)
 date = datetime.datetime.now().strftime('%d/%m/%Y %H:%M')
-e = send_string(date)
+e = send_id_machine(date)
 req = requests.get(f'{api_url}/id_machine/{e}')
 otvet_client = req.json()['id_machine']
 if otvet_client == 'wrong':
