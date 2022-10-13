@@ -11,13 +11,12 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import base64
 
-conf = configparser.ConfigParser()
 
 Base = declarative_base()
 
 
 class LicenseCodes(Base):
-    __tablename__ = 'db_liscense_codes_v1.2'
+    __tablename__ = 'db_liscense_codes_v1.3'
     id = Column(Integer, primary_key=True)
     codes = Column('codes', String, default=None)
     date_sell = Column('date_sell', Date, default=None, onupdate=datetime.date.today())
