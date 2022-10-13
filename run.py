@@ -47,24 +47,36 @@ def check_connect(value):
             session.query(LicenseCodes).filter_by(codes=code_from_client).update({'status': 'in work'})
             session.query(LicenseCodes).filter_by(codes=code_from_client).update({'last_time_check': time})
             session.commit()
-        else:
-            # если кода нет в базе писать в лог
-            log(code_from_client)
-    return {'dont_sniff_my_requests': 'не надо снифить запросы'}
+            return {'dont_sniff_my_requests': 'не надо снифить запросы'}
+
+    # если кода нет в базе писать в лог
+    log(code_from_client)
+    return {'trying to change the license code': 'пытаешься подменить код лицензии?'}
 
 
 @api.get('/id_machine/{value}')
 def check(value):
-    decrypted_key = fer_key.decrypt(value)
-    code_from_client = decrypted_key.decode('utf-8')
-    code_from_client = code_from_client[:-16]
+    code_from_client = 'не задан'
+    try:
+        decrypted_key = fer_key.decrypt(value)
+        code_from_client = decrypted_key.decode('utf-8')
+        code_from_client = code_from_client[:-16]
+    except Exception as er:
+        date_today = datetime.datetime.today().strftime('%d/%m/%Y %H:%M')
+        log_all_information(f'ошибка декодирования строки при первой проверке лицензии - {er}\n')
+        wrong_key = response.encrypt(bytes(date_today + 'wrongdecod', encoding='utf-8'))
+        wrong_string = wrong_key.decode('utf-8')
+
+        return {'id_machine': wrong_string}
     keys_from_server = session.query(LicenseCodes.codes).all()
     for i in keys_from_server:
         if code_from_client in i:
             date_today = datetime.datetime.today().strftime('%d/%m/%Y %H:%M')
             encrypted_key = response.encrypt(bytes(date_today+code_from_client, encoding='utf-8'))
             resp = encrypted_key.decode('utf-8')
-
             return {'id_machine': resp}
-    return {'id_machine': 'wrong'}
+    date_today = datetime.datetime.today().strftime('%d/%m/%Y %H:%M')
+    wrong_key = response.encrypt(bytes(date_today + 'IDDQD', encoding='utf-8'))
+    wrong_string = wrong_key.decode('utf-8')
+    return {'id_machine': wrong_string}
 

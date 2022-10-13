@@ -15,6 +15,7 @@ def log_all_information(error):
         times = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
         f.write(f'{times} ОШИБКА - {error}')
 
+
 def create_minut(time):
     minut_hours = int(time[:1]) * 60
     minutes = int(time[3:])
