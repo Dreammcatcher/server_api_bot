@@ -23,19 +23,25 @@ key_encode = base64.urlsafe_b64encode(kdf2.derive(b'string'))
 response = Fernet(key_encode)
 
 
-@api.get('/check_connect/{value}')
+@api.get('/gettime/{value}')
 def check_connect(value):
     code_from_client = 'не задан'
+    time_from_client = ''
     try:
         decrypted_key = fer_key.decrypt(value)
         code_from_client = decrypted_key.decode('utf-8')
+        time_from_client = code_from_client[-5:]
         code_from_client = code_from_client[:-16]
+
     except Exception as er:
         log_all_information(f'ошибка декодирования строки при ежечасной проверке лицензии - {er}')
     keys_from_server = session.query(LicenseCodes.codes).all()
     for i in keys_from_server:
         if code_from_client in i:
             time = datetime.datetime.now().strftime('%H:%M')
+            if time_from_client != time:
+                log(license_code=code_from_client, stroka=f'не соответствие времени в коде (клиент-{time_from_client}, сервер-{time}) подмена?')
+
             all_minut_now = create_minut(time)
             last_chec_from_bd = session.query(LicenseCodes.last_time_check).filter_by(codes=code_from_client).first()[0]
             if last_chec_from_bd is not None:
@@ -51,7 +57,7 @@ def check_connect(value):
 
     # если кода нет в базе писать в лог
     log(code_from_client, stroka=' подбор кода лицензии при часовой проверке')
-    return {'trying to change the license code': 'пытаешься подменить код лицензии?'}
+    return {'trying to change the license code?': 'пытаешься подменить код лицензии?'}
 
 
 @api.get('/id_machine/{value}')
