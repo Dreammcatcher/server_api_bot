@@ -1,7 +1,11 @@
-from db import *
+from db import session, LicenseCodes
 import fastapi
 import datetime
 from utils_func import log, create_minut, log_all_information
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+import base64
 
 api = fastapi.FastAPI()
 kdf = PBKDF2HMAC(
