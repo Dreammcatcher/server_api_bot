@@ -61,7 +61,7 @@ def check_connect(value):
 
     # если кода нет в базе писать в лог
     log(code_from_client, stroka=' подбор кода лицензии при часовой проверке')
-    return {'trying to change the license code?': 'пытаешься подменить код лицензии?'}
+    return {'trying to change the request?': 'пытаешься подменить запрос?'}
 
 
 @api.get('/id_machine/{value}')
