@@ -38,11 +38,16 @@ def check_connect(value):
         time_from_client = code_from_client[27:32]
         code_client = code_from_client[:16]
         name_bot_client = code_from_client[32:]
+        print(time_from_client)
+        print(code_client)
+        print(name_bot_client)
     except Exception as er:
         log_all_information(f'ошибка декодирования строки при ежечасной проверке лицензии - {er}\n')
     keys_from_server = session.query(LicenseCodes.codes).all()
     for i in keys_from_server:
+        print(i)
         if code_client in i:
+            print(1)
             time = datetime.datetime.now().strftime('%H:%M')
             if time_from_client != time:
                 log(license_code=code_client, stroka=f'бот - {name_bot_client} не соответствие времени в коде (клиент-{time_from_client}, сервер-{time}) подмена?\n')
@@ -62,7 +67,7 @@ def check_connect(value):
             if status_block is not None:
                 return {'trying to change the request': '?'}
 
-        return {'dont_sniff_my_requests': 'не надо снифить запросы'}
+            return {'dont_sniff_my_requests': 'не надо снифить запросы'}
 
     # если кода нет в базе писать в лог
     log(code_client, stroka=f' бот-{name_bot_client} подбор кода лицензии при часовой проверке')
