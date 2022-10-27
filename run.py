@@ -7,6 +7,12 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import base64
 import logging
+import sentry_sdk
+
+sentry_sdk.init(
+     dsn="https://3bcf3c39bd16487493a301b227e4a73b@o4504054313254912.ingest.sentry.io/4504054316335104",
+     traces_sample_rate=0.85,
+)
 
 logging.basicConfig(level=logging.INFO, filename='logs.log', filemode='a',
                     format="%(asctime)s %(levelname)s %(message)s", encoding='utf-8')
@@ -37,6 +43,7 @@ def check_connect(value):
     code_client = 'не задан'
     time_from_client = 'не задан'
     name_bot_client = 'не задан'
+
     try:
         decrypted_key = fer_key.decrypt(value)
         code_from_client = decrypted_key.decode('utf-8')
@@ -45,6 +52,7 @@ def check_connect(value):
         name_bot_client = code_from_client[32:]
     except Exception as er:
         logging.warning(f'ошибка декодирования строки при ежечасной проверке лицензии - {er}')
+        return {'dont_sniff_my_requests': 'не надо снифить запросы'}
     keys_from_server = session.query(LicenseCodes.codes).all()
     for i in keys_from_server:
         if code_client in i:
@@ -57,7 +65,7 @@ def check_connect(value):
                 all_minut_from_bd = create_minut(last_chec_from_bd)
                 if (all_minut_now - all_minut_from_bd) < 58:
                     #print(f'лицензия с кодом {code_from_client} используется два раза')
-                    logging.info(code_client, last_chec_from_bd, time)
+                    logging.warning(f'лицензия с кодом {code_from_client} используется два раза посл время чека в бд-{last_chec_from_bd}, текущее-{time}')
 
             session.query(LicenseCodes).filter_by(codes=code_client).update({'status': 'in work'})
             session.query(LicenseCodes).filter_by(codes=code_client).update({'last_time_check': time})
@@ -65,6 +73,7 @@ def check_connect(value):
             session.commit()
             status_block = session.query(LicenseCodes.status_block).filter_by(codes=code_client).first()[0]
             if status_block is not None:
+                logging.info(f'status_block - {status_block} отправлен бан для {code_client}')
                 return {'trying to change the request': '?'}
 
             return {'dont_sniff_my_requests': 'не надо снифить запросы'}
@@ -72,7 +81,7 @@ def check_connect(value):
     # если кода нет в базе писать в лог
     logging.warning(f'code_client-{code_client}, бот-{name_bot_client} подбор кода лицензии при часовой проверке')
 
-    return {'dont_sniff_my_requests': '!'}
+    return {'dont_sniff_my_requests': 'не надо снифить запросы'}
 
 
 @api.get('/id_machine/{value}')
@@ -84,7 +93,7 @@ def check(value):
         code_from_client = code_from_client[:-16]
     except Exception as er:
         date_today = datetime.datetime.today().strftime('%d/%m/%Y %H:%M')
-        logging.info(f'ошибка декодирования строки при первой проверке лицензии - {er}')
+        logging.warning(f'ошибка декодирования строки при первой проверке лицензии - {er}')
         wrong_key = response.encrypt(bytes(date_today + 'wrongdecod', encoding='utf-8'))
         wrong_string = wrong_key.decode('utf-8')
         return {'id_machine': wrong_string}
